@@ -8,7 +8,17 @@ import (
 func (s *Server) routes() {
 	s.router.Use(render.SetContentType(render.ContentTypeJSON))
 
-	s.router.Route("/workout", func(r chi.Router) {
-		s.router.Get("/{week}", s.handleGetWorkoutForWeek)
+	s.router.Route("/api/v1.0", func(r chi.Router) {
+		r.Route("/ping", func(r chi.Router) {
+			r.Get("/", s.handlePing)
+		})
+
+		r.Route("/account", func(r chi.Router) {
+			r.Route("/{id}", func(r chi.Router) {
+				r.Route("/workout", func(r chi.Router) {
+					r.Get("/", s.handleGetWorkoutByDate)
+				})
+			})
+		})
 	})
 }
