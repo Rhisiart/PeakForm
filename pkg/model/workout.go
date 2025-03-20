@@ -1,9 +1,13 @@
 package model
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/google/uuid"
+)
 
 type Workout struct {
-	Id               string      `json:"id"`
+	Id               uuid.UUID   `json:"id"`
 	Name             string      `json:"name"`
 	Description      string      `json:"description"`
 	WorkoutType      string      `json:"workoutType"`

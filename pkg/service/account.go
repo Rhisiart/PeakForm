@@ -7,6 +7,7 @@ import (
 
 	"github.com/Rhisiart/PeakForm/pkg/model"
 	"github.com/Rhisiart/PeakForm/pkg/repository"
+	"github.com/google/uuid"
 )
 
 type AccountService struct {
@@ -21,7 +22,7 @@ func NewAccontService(accountRepo repository.AccountRepository) *AccountService 
 
 func (a *AccountService) GetWorkoutByDate(
 	ctx context.Context,
-	accountId string,
+	accountId uuid.UUID,
 	date string) (*model.Workout, error) {
 	dt, err := time.Parse(time.DateOnly, date)
 	weekDay := int(dt.Weekday())
@@ -34,4 +35,12 @@ func (a *AccountService) GetWorkoutByDate(
 	slog.Warn("Querying the workouts", "AccountId", accountId, "Date", date, "WeekDay", weekDay)
 
 	return a.AccountRepo.FindWorkoutByDate(ctx, accountId, weekDay, dt)
+}
+
+func (a *AccountService) CreateWorkoutSession(
+	ctx context.Context,
+	accoutId uuid.UUID,
+	workoutId uuid.UUID,
+	session *model.Session) error {
+	return a.AccountRepo.CreateWorkoutSession(ctx, accoutId, workoutId, session)
 }

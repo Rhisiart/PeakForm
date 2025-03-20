@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Rhisiart/PeakForm/pkg/model"
+	"github.com/google/uuid"
 )
 
 type AccountRepo struct {
@@ -19,9 +20,26 @@ func NewAccountRepo(db *sql.DB) *AccountRepo {
 	}
 }
 
-func (wr *AccountRepo) FindWorkoutByDate(
+func (a *AccountRepo) CreateWorkoutSession(
 	ctx context.Context,
-	accountId string,
+	accountId uuid.UUID,
+	workoutId uuid.UUID,
+	session *model.Session) error {
+	query := `INSERT INTO workout_session (account, plan_workouts, started_at)
+				VALUES ($1, $2, $3)
+				RETURNING id`
+
+	return a.db.QueryRowContext(
+		ctx,
+		query,
+		accountId,
+		workoutId,
+		session.StartedAt).Scan(&session.Id)
+}
+
+func (a *AccountRepo) FindWorkoutByDate(
+	ctx context.Context,
+	accountId uuid.UUID,
 	dayOfWeek int,
 	date time.Time) (*model.Workout, error) {
 	query := `SELECT w.id, w.name, w.description, w.workout_type, w.difficulty, w.calories_estimate, we.exercise, we.reps, we.sets, we.weight, we.rest, we.notes
@@ -33,7 +51,7 @@ func (wr *AccountRepo) FindWorkoutByDate(
     			WHERE atp.account = $1 AND atp.status = 'Active' AND pw.day_of_week = $2 AND pw.week = ((DATE '2025-03-18'  - atp.start_date) / 7) + 1
     			ORDER BY we.order_number ASC`
 
-	rows, err := wr.db.QueryContext(ctx, query, accountId, dayOfWeek)
+	rows, err := a.db.QueryContext(ctx, query, accountId, dayOfWeek)
 
 	if err != nil {
 		slog.Error("Cannot get the workout for the day", "Error", err.Error())
@@ -45,8 +63,6 @@ func (wr *AccountRepo) FindWorkoutByDate(
 	workout := new(model.Workout)
 
 	for rows.Next() {
-		slog.Warn("Looping throught the rows")
-
 		newExercise := new(model.Exercise)
 
 		if err := rows.Scan(
