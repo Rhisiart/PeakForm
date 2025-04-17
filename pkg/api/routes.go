@@ -30,6 +30,12 @@ func (s *Server) routes() {
 		r.Route("/session", func(r chi.Router) {
 			r.Route("/{sessionId}", func(r chi.Router) {
 				r.Patch("/", s.handlePatchSession)
+
+				r.Route("/exercise", func(r chi.Router) {
+					r.Route("/{exerciseId}", func(r chi.Router) {
+						r.Post("/", s.handlePostExerciseLog)
+					})
+				})
 			})
 		})
 	})

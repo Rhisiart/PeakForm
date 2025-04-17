@@ -36,11 +36,3 @@ func (a *AccountService) GetWorkoutByDate(
 
 	return a.AccountRepo.FindWorkoutByDate(ctx, accountId, weekDay, dt)
 }
-
-func (a *AccountService) CreateWorkoutSession(
-	ctx context.Context,
-	accoutId uuid.UUID,
-	workoutId uuid.UUID,
-	session *model.Session) error {
-	return a.AccountRepo.CreateWorkoutSession(ctx, accoutId, workoutId, session)
-}

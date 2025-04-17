@@ -20,36 +20,20 @@ func NewAccountRepo(db *sql.DB) *AccountRepo {
 	}
 }
 
-func (a *AccountRepo) CreateWorkoutSession(
-	ctx context.Context,
-	accountId uuid.UUID,
-	workoutId uuid.UUID,
-	session *model.Session) error {
-	query := `INSERT INTO workout_session (account, plan_workouts, started_at)
-				VALUES ($1, $2, $3)
-				RETURNING id`
-
-	return a.db.QueryRowContext(
-		ctx,
-		query,
-		accountId,
-		workoutId,
-		session.StartedAt).Scan(&session.Id)
-}
-
 func (a *AccountRepo) FindWorkoutByDate(
 	ctx context.Context,
 	accountId uuid.UUID,
 	dayOfWeek int,
 	date time.Time) (*model.Workout, error) {
-	query := `SELECT w.id, w.name, w.description, w.workout_type, w.difficulty, w.calories_estimate, we.exercise, we.reps, we.sets, we.weight, we.rest, we.notes
-    			FROM workout_exercise AS we
-    			JOIN workout AS w ON w.id = we.workout
-    			JOIN plan_workouts AS pw ON pw.workout = w.id
-    			JOIN training_plan AS pl ON pl.id = pw.training_plan
-    			JOIN account_training_plan AS atp ON atp.training_plan = pl.id
-    			WHERE atp.account = $1 AND atp.status = 'Active' AND pw.day_of_week = $2 AND pw.week = ((DATE '2025-03-18'  - atp.start_date) / 7) + 1
-    			ORDER BY we.order_number ASC`
+	query := `SELECT w.id, w.name, w.description, w.workout_type, w.difficulty, w.calories_estimate, exe.name AS exercise_name, exe.muscle_group, we.reps, we.sets, we.weight, we.rest, we.notes
+    FROM workout_exercise AS we
+    JOIN exercise AS exe ON exe.id = we.exercise
+    JOIN workout AS w ON w.id = we.workout
+    JOIN plan_workouts AS pw ON pw.workout = w.id
+    JOIN training_plan AS pl ON pl.id = pw.training_plan
+    JOIN account_training_plan AS atp ON atp.training_plan = pl.id
+    WHERE atp.account = '8bbc1d23-80d9-4fed-8079-f35e7504950e' AND atp.status = 'Active' AND pw.day_of_week = 1 AND pw.week = ((DATE '2025-03-17'  - atp.start_date) / 7) + 1
+    ORDER BY we.order_number ASC`
 
 	rows, err := a.db.QueryContext(ctx, query, accountId, dayOfWeek)
 
@@ -73,6 +57,8 @@ func (a *AccountRepo) FindWorkoutByDate(
 			&workout.Difficulty,
 			&workout.CaloriesEstimate,
 			&newExercise.Id,
+			&newExercise.Name,
+			&newExercise.MuscleGroup,
 			&newExercise.Reps,
 			&newExercise.Sets,
 			&newExercise.Weight,

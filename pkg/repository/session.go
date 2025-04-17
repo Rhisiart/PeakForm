@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/Rhisiart/PeakForm/pkg/model"
+	"github.com/google/uuid"
 )
 
 type SessionRepo struct {
@@ -15,6 +16,23 @@ func NewSessionRepo(db *sql.DB) *SessionRepo {
 	return &SessionRepo{
 		db: db,
 	}
+}
+
+func (s *SessionRepo) CreateWorkoutSession(
+	ctx context.Context,
+	accountId uuid.UUID,
+	workoutId uuid.UUID,
+	session *model.Session) error {
+	query := `INSERT INTO workout_session (account, plan_workouts, started_at)
+				VALUES ($1, $2, $3)
+				RETURNING id`
+
+	return s.db.QueryRowContext(
+		ctx,
+		query,
+		accountId,
+		workoutId,
+		session.StartedAt).Scan(&session.Id)
 }
 
 func (s *SessionRepo) UpdateSession(ctx context.Context, session *model.Session) error {
