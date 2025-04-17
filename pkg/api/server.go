@@ -32,7 +32,7 @@ func (s *Server) Start(ctx context.Context) {
 	s.routes()
 
 	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", s.config.Port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", s.config.Port),
 		Handler: s.router,
 	}
 
