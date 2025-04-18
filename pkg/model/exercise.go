@@ -11,4 +11,5 @@ type Exercise struct {
 	Weight      int       `json:"weight"`
 	Rest        int       `json:"rest"`
 	Notes       string    `json:"notes"`
+	VideoUrl    string    `json:"videoUrl"`
 }

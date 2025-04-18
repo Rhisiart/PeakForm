@@ -25,7 +25,7 @@ func (a *AccountRepo) FindWorkoutByDate(
 	accountId uuid.UUID,
 	dayOfWeek int,
 	date time.Time) (*model.Workout, error) {
-	query := `SELECT w.id, w.name, w.description, w.workout_type, w.difficulty, w.calories_estimate, exe.id AS exercise_id, exe.name AS exercise_name, exe.muscle_group, we.reps, we.sets, we.weight, we.rest, we.notes
+	query := `SELECT w.id, w.name, w.description, w.workout_type, w.difficulty, w.calories_estimate, exe.id AS exercise_id, exe.name AS exercise_name, exe.muscle_group, exe.video_url, we.reps, we.sets, we.weight, we.rest, we.notes
     FROM workout_exercise AS we
     JOIN exercise AS exe ON exe.id = we.exercise
     JOIN workout AS w ON w.id = we.workout
@@ -59,6 +59,7 @@ func (a *AccountRepo) FindWorkoutByDate(
 			&newExercise.Id,
 			&newExercise.Name,
 			&newExercise.MuscleGroup,
+			&newExercise.VideoUrl,
 			&newExercise.Reps,
 			&newExercise.Sets,
 			&newExercise.Weight,
