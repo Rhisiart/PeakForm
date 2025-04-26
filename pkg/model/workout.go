@@ -13,6 +13,7 @@ type Workout struct {
 	WorkoutType      string      `json:"workoutType"`
 	Difficulty       string      `json:"difficulty"`
 	CaloriesEstimate int         `json:"caloriesEstimate"`
+	Duration         int         `json:"duration"`
 	Exercises        []*Exercise `json:"exercises"`
 }
 
